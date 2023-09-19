@@ -26,4 +26,5 @@ handler = SlackRequestHandler(app)
 
 @flask_app.route("/")
 def slack_events():
+    print("testing")
     return handler.handle(request)
