@@ -3,6 +3,10 @@ from flask import render_template
 from slack_bolt import App
 from slack_bolt.adapter.flask import SlackRequestHandler
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
 app = App()
 
 @app.middleware  # or app.use(log_request)
