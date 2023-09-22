@@ -7,3 +7,4 @@ MarkupSafe==1.1.1
 Werkzeug==1.0.1
 slack_bolt
 pymongo[srv]
+num2words
