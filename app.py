@@ -416,6 +416,9 @@ def handle_some_action(ack, body, logger):
     store_Vote(body, client)
     retrieve_Vote(client, body)
 
+flask_app = Flask(__name__)
+handler = SlackRequestHandler(app)
+
 @flask_app.route("/slack/events", methods=["POST"])
 def slack_events():
     return handler.handle(request)
