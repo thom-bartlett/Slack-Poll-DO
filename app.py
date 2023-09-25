@@ -180,7 +180,7 @@ def open_modal(ack, shortcut, client, payload, context, body):
         trigger_id=shortcut["trigger_id"],
         view=creation_View
     )
-    logger.info(payload, context, body)
+    logger.info(context["channel_id"])
 
 @app.error
 def custom_error_handler(error, body, logger):
