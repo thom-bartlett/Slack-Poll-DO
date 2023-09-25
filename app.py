@@ -180,7 +180,10 @@ def open_modal(ack, shortcut, client):
         trigger_id=shortcut["trigger_id"],
         view=creation_View
     )
-    logger.info(json.dumps(response))
+    initial_channel = response["view"]["state"]["values"]["channel"]["channel"]["selected_conversation"]
+    logger.info(initial_channel)
+    json = json.dumps(response)
+    logger.info(json)
 
 # @app.middleware  # or app.use(log_request)
 # def log_request(logger, body, next):
