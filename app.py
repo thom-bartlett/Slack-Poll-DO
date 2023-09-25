@@ -37,6 +37,7 @@ creation_View = {
 	},
 	"blocks": [
 		{
+            "block_id": "channel",
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
