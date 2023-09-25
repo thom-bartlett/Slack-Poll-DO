@@ -173,6 +173,7 @@ def open_modal(ack, shortcut, client):
     # Acknowledge the shortcut request
     ack()
     # Send initial view
+    logger.info(shortcut)
     client.views_open(
         trigger_id=shortcut["trigger_id"],
         view=creation_View
