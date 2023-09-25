@@ -180,7 +180,7 @@ def open_modal(ack, shortcut, client):
         trigger_id=shortcut["trigger_id"],
         view=creation_View
     )
-    logger.info(response)
+    logger.info(json.dumps(response))
 
 # @app.middleware  # or app.use(log_request)
 # def log_request(logger, body, next):
