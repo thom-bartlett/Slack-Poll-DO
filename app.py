@@ -22,7 +22,7 @@ creation_View = {
 	"type": "modal",
 	"title": {
 		"type": "plain_text",
-		"text": "My App",
+		"text": "VentureWell App",
 		"emoji": True
 	},
 	"submit": {
@@ -39,7 +39,7 @@ creation_View = {
 		{
 			"block_id": "channel",
 			"type": "input",
-			"optional": True,
+			"optional": False,
 			"label": {
 				"type": "plain_text",
 				"text": "Select a channel to post the survey in:"
@@ -188,6 +188,11 @@ def handle_visibility(ack, body, logger):
     ack()
     logger.info(body)
 
+@app.action("channel")
+def handle_visibility(ack, body, logger):
+    ack()
+    logger.info(body)
+
 # Another option was added to poll creation view - update and respond
 @app.action("add-option-action")
 def update_modal(ack, body, client):
@@ -325,19 +330,19 @@ def handle_view_events(ack, body, logger, client):
     blocks = json.dumps(blocks)
     logger.info(f"Finaly message blocks to be sent to channel: {blocks}")
     db = mongoclient.Poll
-    # try:
-    result = client.chat_postMessage(
-        channel=channel, 
-        blocks=blocks
-    )
-    time = result["message"]["ts"]
-    time = result["message"]["ts"]
-    db[time].insert_one(text_Values)
-    db[time].insert_one({"anonymous": visibility})
-    db[time].insert_one({"votes_allowed": votes_allowed})
-    return time
-    # except SlackApiError as e:
-    #     logger.exception(f"Error posting message error: {e}")
+    try:
+        result = client.chat_postMessage(
+            channel=channel, 
+            blocks=blocks
+        )
+        time = result["message"]["ts"]
+        time = result["message"]["ts"]
+        db[time].insert_one(text_Values)
+        db[time].insert_one({"anonymous": visibility})
+        db[time].insert_one({"votes_allowed": votes_allowed})
+        return time
+    except SlackApiError as e:
+        logger.exception(f"Error posting message error: {e}")
 
 def store_Vote(body, client):
     logger.info("storing vote")
