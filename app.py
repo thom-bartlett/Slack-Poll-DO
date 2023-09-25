@@ -172,7 +172,7 @@ creation_View = {
 
 # Slack Shortcut activated - send modal view
 @app.shortcut("poll")
-def open_modal(ack, shortcut, client):
+def open_modal(ack, shortcut, client, payload, context, body):
     # Acknowledge the shortcut request
     ack()
     # Send initial view
@@ -180,6 +180,7 @@ def open_modal(ack, shortcut, client):
         trigger_id=shortcut["trigger_id"],
         view=creation_View
     )
+    logger.info(payload, context, body)
 
 @app.error
 def custom_error_handler(error, body, logger):
