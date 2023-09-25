@@ -176,15 +176,16 @@ def open_modal(ack, shortcut, client):
     # Acknowledge the shortcut request
     ack()
     # Send initial view
-    client.views_open(
+    response = client.views_open(
         trigger_id=shortcut["trigger_id"],
         view=creation_View
     )
+    logger.info(response)
 
-@app.middleware  # or app.use(log_request)
-def log_request(logger, body, next):
-    logger.debug(body)
-    return next()
+# @app.middleware  # or app.use(log_request)
+# def log_request(logger, body, next):
+#     logger.debug(body)
+#     return next()
     
 @app.action("visibility-action")
 def handle_visibility(ack, body, logger):
