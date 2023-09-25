@@ -173,11 +173,15 @@ def open_modal(ack, shortcut, client):
     # Acknowledge the shortcut request
     ack()
     # Send initial view
-    logger.info(shortcut)
     client.views_open(
         trigger_id=shortcut["trigger_id"],
         view=creation_View
     )
+
+@app.error
+def custom_error_handler(error, body, logger):
+    logger.exception(f"Error: {error}")
+    logger.info(f"Request body: {body}")
     
 @app.action("visibility-action")
 def handle_visibility(ack, body, logger):
@@ -321,19 +325,19 @@ def handle_view_events(ack, body, logger, client):
     blocks = json.dumps(blocks)
     logger.info(f"Finaly message blocks to be sent to channel: {blocks}")
     db = mongoclient.Poll
-    try:
-        result = client.chat_postMessage(
-            channel=channel, 
-            blocks=blocks
-        )
-        time = result["message"]["ts"]
-        time = result["message"]["ts"]
-        db[time].insert_one(text_Values)
-        db[time].insert_one({"anonymous": visibility})
-        db[time].insert_one({"votes_allowed": votes_allowed})
-        return time
-    except SlackApiError as e:
-        logger.exception(f"Error posting message error: {e}")
+    # try:
+    result = client.chat_postMessage(
+        channel=channel, 
+        blocks=blocks
+    )
+    time = result["message"]["ts"]
+    time = result["message"]["ts"]
+    db[time].insert_one(text_Values)
+    db[time].insert_one({"anonymous": visibility})
+    db[time].insert_one({"votes_allowed": votes_allowed})
+    return time
+    # except SlackApiError as e:
+    #     logger.exception(f"Error posting message error: {e}")
 
 def store_Vote(body, client):
     logger.info("storing vote")
