@@ -37,21 +37,18 @@ creation_View = {
 	},
 	"blocks": [
 		{
-            "block_id": "channel",
-			"type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": "*Select a channel to post the survey in:*"
+			"block_id": "channel",
+			"type": "input",
+			"optional": True,
+			"label": {
+				"type": "plain_text",
+				"text": "Select a channel to post the survey in:"
 			},
-			"accessory": {
+			"element": {
+				"action_id": "channel",
 				"type": "conversations_select",
-				"placeholder": {
-					"type": "plain_text",
-					"text": "Select a conversation",
-					"emoji": True
-				},
-				"default_to_current_conversation": True,
-				"action_id": "channel"
+				"response_url_enabled": True,
+				"default_to_current_conversation": True
 			}
 		},
 		{
