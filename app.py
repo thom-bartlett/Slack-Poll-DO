@@ -233,7 +233,7 @@ def update_modal(ack, body, client):
     )
 
 def get_Channels(client):
-    list = client.users_converations()
+    list = client.users_conversations()
     logger.info(list)
 
 # Accept the submitted poll and convert to a Slack block format
