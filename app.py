@@ -377,26 +377,6 @@ def handle_view_events(ack, body, logger, client):
     except SlackApiError as e:
         logger.info(e)
         logger.info("Bot not in channel")
-        client.views_push(
-            trigger_id = trigger,
-            view = {
-                    "type": "modal",
-                    # View identifier
-                    "callback_id": "view_1",
-                    "title": {"type": "plain_text", "text": "Updated modal"},
-                    "blocks": [
-                        {
-                            "type": "section",
-                            "text": {"type": "plain_text", "text": "You updated the modal!"}
-                        },
-                        {
-                            "type": "image",
-                            "image_url": "https://media.giphy.com/media/SVZGEcYt7brkFUyU90/giphy.gif",
-                            "alt_text": "Yay! The modal was updated"
-                        }
-                    ]
-            }
-        )
 
 def store_Vote(body, client):
     logger.info("storing vote")
