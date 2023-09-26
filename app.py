@@ -254,7 +254,6 @@ def handle_view_events(ack, body, logger, client):
     logger.info(trigger)
     logger.info(body_json)
     
-    ack()
     # collect values
     state_values = body["view"]["state"]["values"]
     channel = state_values["channel"]["channel"]["selected_conversation"]
@@ -263,7 +262,18 @@ def handle_view_events(ack, body, logger, client):
     visibility = state_values["visibility"]["visibility-action"]["selected_options"]
     submitter = body["user"]["id"]
 
-    get_Channels(client, channel)
+    in_Channel = get_Channels(client, channel)
+    if not in_Channel:
+        ack(
+            response_action="errors",
+            errors={
+                "channel": "The Polling app is not a part of this private channel so it can't send the poll. Please add it."
+            }
+
+        )
+    else:
+        ack()
+
     # options = []
     # for key, value in state_values.items():
     #     if "option" in key:
