@@ -348,7 +348,7 @@ def handle_view_events(ack, body, logger, client):
         db[time].insert_one({"votes_allowed": votes_allowed})
         return time
     except SlackApiError as e:
-        if SlackApiError == "channel_not_found":
+        if e == "channel_not_found":
             logger.info("Bot not in channel")
             client.views_push(
                 trigger_id = trigger,
