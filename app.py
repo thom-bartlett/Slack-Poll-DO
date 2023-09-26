@@ -336,44 +336,43 @@ def handle_view_events(ack, body, logger, client):
     blocks = json.dumps(blocks)
     logger.info(f"Final message blocks to be sent to channel: {blocks}")
     db = mongoclient.Poll
-    # try:
-    result = client.chat_postMessage(
-        channel=channel, 
-        blocks=blocks
-    )
-    time = result["message"]["ts"]
-    time = result["message"]["ts"]
-    db[time].insert_one(text_Values)
-    db[time].insert_one({"anonymous": visibility})
-    db[time].insert_one({"votes_allowed": votes_allowed})
-    logger.info(f"Try result = {result}")
-    return time
-    # except SlackApiError as e:
-    #     if e == "channel_not_found":
-    #         logger.info("Bot not in channel")
-    #         client.views_push(
-    #             trigger_id = trigger,
-    #             view = {
-    #                 {
-    #                     "type": "modal",
-    #                     # View identifier
-    #                     "callback_id": "view_1",
-    #                     "title": {"type": "plain_text", "text": "Updated modal"},
-    #                     "blocks": [
-    #                         {
-    #                             "type": "section",
-    #                             "text": {"type": "plain_text", "text": "You updated the modal!"}
-    #                         },
-    #                         {
-    #                             "type": "image",
-    #                             "image_url": "https://media.giphy.com/media/SVZGEcYt7brkFUyU90/giphy.gif",
-    #                             "alt_text": "Yay! The modal was updated"
-    #                         }
-    #                     ]
-    #                 }
-    #             }
-    #         )
-    #     logger.exception(f"Error posting message error: {e}")
+    try:
+        result = client.chat_postMessage(
+            channel=channel, 
+            blocks=blocks
+        )
+        time = result["message"]["ts"]
+        time = result["message"]["ts"]
+        db[time].insert_one(text_Values)
+        db[time].insert_one({"anonymous": visibility})
+        db[time].insert_one({"votes_allowed": votes_allowed})
+        logger.info(f"Try result = {result}")
+        return time
+    except SlackApiError as e:
+        logger.info(e.msg)
+        logger.info("Bot not in channel")
+        client.views_push(
+            trigger_id = trigger,
+            view = {
+                {
+                    "type": "modal",
+                    # View identifier
+                    "callback_id": "view_1",
+                    "title": {"type": "plain_text", "text": "Updated modal"},
+                    "blocks": [
+                        {
+                            "type": "section",
+                            "text": {"type": "plain_text", "text": "You updated the modal!"}
+                        },
+                        {
+                            "type": "image",
+                            "image_url": "https://media.giphy.com/media/SVZGEcYt7brkFUyU90/giphy.gif",
+                            "alt_text": "Yay! The modal was updated"
+                        }
+                    ]
+                }
+            }
+        )
 
 def store_Vote(body, client):
     logger.info("storing vote")
