@@ -232,6 +232,10 @@ def update_modal(ack, body, client):
         view = new_View_json
     )
 
+def get_Channels(client):
+    list = client.users_converations()
+    logger.info(list)
+
 # Accept the submitted poll and convert to a Slack block format
 @app.view("poll_view")
 def handle_view_events(ack, body, logger, client):
@@ -241,6 +245,7 @@ def handle_view_events(ack, body, logger, client):
     trigger = body["trigger_id"]
     logger.info(trigger)
     logger.info(body_json)
+    get_Channels(client)
     ack()
     # collect values
     state_values = body["view"]["state"]["values"]
