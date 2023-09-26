@@ -263,6 +263,7 @@ def handle_view_events(ack, body, logger, client):
     submitter = body["user"]["id"]
 
     in_Channel = get_Channels(client, channel)
+    logger.info(in_Channel)
     if not in_Channel:
         ack(
             response_action="errors",
