@@ -181,9 +181,7 @@ def open_modal(ack, shortcut, client):
         view=creation_View
     )
     initial_channel = response["view"]["state"]["values"]["channel"]["channel"]["selected_conversation"]
-    logger.info(initial_channel)
-    json = json.dumps(response)
-    logger.info(json)
+
 
 # @app.middleware  # or app.use(log_request)
 # def log_request(logger, body, next):
@@ -240,6 +238,7 @@ def handle_view_events(ack, body, logger, client):
     dbpass = os.environ.get("DB_PASS")
     mongoclient = MongoClient(f"mongodb+srv://unfo33:{dbpass}@cluster0.deaag.mongodb.net/?retryWrites=true&w=majority")
     body_json = json.dumps(body)
+    trigger = body["trigger_id"]
     logger.info(body_json)
     ack()
     # collect values
@@ -335,7 +334,7 @@ def handle_view_events(ack, body, logger, client):
 		}]
     blocks = blocks + final_block
     blocks = json.dumps(blocks)
-    logger.info(f"Finaly message blocks to be sent to channel: {blocks}")
+    logger.info(f"Final message blocks to be sent to channel: {blocks}")
     db = mongoclient.Poll
     try:
         result = client.chat_postMessage(
@@ -349,6 +348,30 @@ def handle_view_events(ack, body, logger, client):
         db[time].insert_one({"votes_allowed": votes_allowed})
         return time
     except SlackApiError as e:
+        if SlackApiError == "channel_not_found":
+            logger.info("Bot not in channel")
+            client.views_push(
+                trigger_id = trigger,
+                view = {
+                    {
+                        "type": "modal",
+                        # View identifier
+                        "callback_id": "view_1",
+                        "title": {"type": "plain_text", "text": "Updated modal"},
+                        "blocks": [
+                            {
+                                "type": "section",
+                                "text": {"type": "plain_text", "text": "You updated the modal!"}
+                            },
+                            {
+                                "type": "image",
+                                "image_url": "https://media.giphy.com/media/SVZGEcYt7brkFUyU90/giphy.gif",
+                                "alt_text": "Yay! The modal was updated"
+                            }
+                        ]
+                    }
+                }
+            )
         logger.exception(f"Error posting message error: {e}")
 
 def store_Vote(body, client):
