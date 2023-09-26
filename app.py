@@ -354,7 +354,6 @@ def handle_view_events(ack, body, logger, client):
         client.views_push(
             trigger_id = trigger,
             view = {
-                {
                     "type": "modal",
                     # View identifier
                     "callback_id": "view_1",
@@ -370,7 +369,6 @@ def handle_view_events(ack, body, logger, client):
                             "alt_text": "Yay! The modal was updated"
                         }
                     ]
-                }
             }
         )
 
