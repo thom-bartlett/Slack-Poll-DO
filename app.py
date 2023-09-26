@@ -265,6 +265,7 @@ def handle_view_events(ack, body, logger, client):
     in_Channel = get_Channels(client, channel)
     logger.info(in_Channel)
     if not in_Channel:
+        logger.info("i'm about to error ack!")
         ack(
             response_action="errors",
             errors={
@@ -273,6 +274,7 @@ def handle_view_events(ack, body, logger, client):
 
         )
     else:
+        logger.info("normal ack")
         ack()
 
     # options = []
