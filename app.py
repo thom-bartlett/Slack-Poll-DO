@@ -239,6 +239,7 @@ def handle_view_events(ack, body, logger, client):
     mongoclient = MongoClient(f"mongodb+srv://unfo33:{dbpass}@cluster0.deaag.mongodb.net/?retryWrites=true&w=majority")
     body_json = json.dumps(body)
     trigger = body["trigger_id"]
+    logger.info(trigger)
     logger.info(body_json)
     ack()
     # collect values
