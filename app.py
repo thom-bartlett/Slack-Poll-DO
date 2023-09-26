@@ -233,10 +233,10 @@ def update_modal(ack, body, client):
     )
 
 def get_Channels(client, current_channel):
-    logger.info(list)
     list = client.users_conversations(
         types="private_channel"
     )
+    logger.info(list)
     for i in list["channels"]:
         if i["id"] == current_channel:
             return True
