@@ -232,11 +232,17 @@ def update_modal(ack, body, client):
         view = new_View_json
     )
 
-def get_Channels(client):
+def get_Channels(client, current_channel):
+    logger.info(list)
     list = client.users_conversations(
         types="private_channel"
     )
-    logger.info(list)
+    for i in list["channels"]:
+        if i["id"] == current_channel:
+            return True
+    return False
+
+    
 
 # Accept the submitted poll and convert to a Slack block format
 @app.view("poll_view")
@@ -247,7 +253,7 @@ def handle_view_events(ack, body, logger, client):
     trigger = body["trigger_id"]
     logger.info(trigger)
     logger.info(body_json)
-    get_Channels(client)
+    
     ack()
     # collect values
     state_values = body["view"]["state"]["values"]
@@ -256,6 +262,8 @@ def handle_view_events(ack, body, logger, client):
     votes_allowed = state_values["votes-allowed"]["votes-allowed-action"]["selected_option"]["text"]["text"]
     visibility = state_values["visibility"]["visibility-action"]["selected_options"]
     submitter = body["user"]["id"]
+
+    get_Channels(client, channel)
     # options = []
     # for key, value in state_values.items():
     #     if "option" in key:
