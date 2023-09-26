@@ -230,15 +230,14 @@ def update_modal(ack, body, client):
     )
 
 def get_Channels(client, current_channel):
-    list = client.users_conversations(
-        types="private_channel"
+    list = client.conversations_info(
+        channel=current_channel
     )
     logger.info(list)
-    for i in list["channels"]:
-        if i["id"] == current_channel:
-            return True
-    return False
-
+    if list["error"] == "channel_not_found":
+        return False
+    else:
+        return True
     
 
 # Accept the submitted poll and convert to a Slack block format
