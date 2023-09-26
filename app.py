@@ -349,7 +349,7 @@ def handle_view_events(ack, body, logger, client):
         logger.info(f"Try result = {result}")
         return time
     except SlackApiError as e:
-        logger.info(e.msg)
+        logger.info(e.message)
         logger.info("Bot not in channel")
         client.views_push(
             trigger_id = trigger,
