@@ -346,8 +346,10 @@ def handle_view_events(ack, body, logger, client):
         db[time].insert_one(text_Values)
         db[time].insert_one({"anonymous": visibility})
         db[time].insert_one({"votes_allowed": votes_allowed})
+        logger.info(f"Try result = {result}")
         return time
     except SlackApiError as e:
+        logger.info(f"except result = {result}")
         if e == "channel_not_found":
             logger.info("Bot not in channel")
             client.views_push(
