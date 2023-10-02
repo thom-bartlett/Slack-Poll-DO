@@ -356,8 +356,14 @@ def send_Message(client, channel, ack, blocks):
 def update_DB(time, text_Values, visibility, votes_Allowed):
     """Store original poll data in DB"""
     dbpass = os.environ.get("DB_PASS")
-    mongoclient = MongoClient(f"mongodb+srv://unfo33:{dbpass}@cluster0.deaag.mongodb.net/?retryWrites=true&w=majority")
-    db = mongoclient.Poll
+    #mongoclient = MongoClient(f"mongodb+srv://doadmin:{dbpass}slack-poll-f9932d0b.mongo.ondigitalocean.com")
+    mongoClient = MongoClient(
+        'mongodb+srv://slack-poll-f9932d0b.mongo.ondigitalocean.com',
+        username='doadmin',
+        password=dbpass,
+        authSource='Poll',
+        authMechanism='SCRAM-SHA-256')
+    db = mongoClient.Poll
     db[time].insert_one(text_Values)
     db[time].insert_one({"anonymous": visibility})
     db[time].insert_one({"votes_allowed": votes_Allowed})
