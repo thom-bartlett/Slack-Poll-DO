@@ -9,6 +9,7 @@ from num2words import num2words
 from pymongo import MongoClient
 from slack_sdk.errors import SlackApiError
 import copy
+from pathlib import Path
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -17,6 +18,7 @@ app = App(process_before_response=True)
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
+# initial view - should be converted to JSON
 creation_View = {
 	"callback_id": "poll_view",
 	"type": "modal",
@@ -167,44 +169,37 @@ creation_View = {
 	]
 }
 
+def get_CreationView():
+    p = Path(__file__).with_name('creationView.json')
+    with p.open('r') as f:
+        view = json.lods(f)
+    return view
+
 # Slack Shortcut activated - send modal view
 @app.shortcut("poll")
 def open_modal(ack, shortcut, client):
-    # Acknowledge the shortcut request
+    """Send creation poll creation modal"""
     ack()
-    # Send initial view
-    response = client.views_open(
+    creation_View = get_CreationView()
+    client.views_open(
         trigger_id=shortcut["trigger_id"],
         view=creation_View
     )
-    initial_channel = response["view"]["state"]["values"]["channel"]["channel"]["selected_conversation"]
-
-
-# @app.middleware  # or app.use(log_request)
-# def log_request(logger, body, next):
-#     logger.debug(body)
-#     return next()
-    
-@app.action("visibility-action")
-def handle_visibility(ack, body, logger):
-    ack()
-    logger.info(body)
-
-@app.action("channel")
-def handle_visibility(ack, body, logger):
-    ack()
-    logger.info(body)
 
 # Another option was added to poll creation view - update and respond
 @app.action("add-option-action")
 def update_modal(ack, body, client):
+    """Add new question to poll creation view. Triggered by button."""
     ack()
+    # logging
     body_json = json.dumps(body)
     logger.info(body_json)
+    # determine current length and where to add new survey question
     view_Length = len(body["view"]["blocks"])
     insert_Index = view_Length - 2
     new_Option = (view_Length - 4)
-    type_Blocks ={
+    # build new survey question
+    type_Blocks = {
 			"block_id": f"option-{new_Option}",
 			"type": "input",
 			"element": {
@@ -217,12 +212,14 @@ def update_modal(ack, body, client):
 				"emoji": True
 			}
 		}
+    # get existing questions and insert new question
     new_Blocks = body["view"]["blocks"]
     new_Blocks.insert(insert_Index, type_Blocks)
-    new_View = copy.deepcopy(creation_View)
+    new_View = get_CreationView()
     new_View["blocks"] = new_Blocks
     new_View_json = json.dumps(new_View)
     logger.info(new_View_json)
+    # send the update
     client.views_update(
         view_id = body["view"]["id"],
         hash = body["view"]["hash"],
@@ -230,6 +227,7 @@ def update_modal(ack, body, client):
     )
 
 def get_Channels(client, current_channel):
+    """check if bot has permission to post in a channel"""
     try:
         client.conversations_info(
             channel=current_channel
@@ -237,47 +235,9 @@ def get_Channels(client, current_channel):
         return True
     except:
         return False
-    
 
-# Accept the submitted poll and convert to a Slack block format
-@app.view("poll_view")
-def handle_view_events(ack, body, logger, client):
-    dbpass = os.environ.get("DB_PASS")
-    mongoclient = MongoClient(f"mongodb+srv://unfo33:{dbpass}@cluster0.deaag.mongodb.net/?retryWrites=true&w=majority")
-    body_json = json.dumps(body)
-    trigger = body["trigger_id"]
-    logger.info(trigger)
-    logger.info(body_json)
-    
-    # collect values
-    state_values = body["view"]["state"]["values"]
-    channel = state_values["channel"]["channel"]["selected_conversation"]
-    question = state_values["question"]["plain_text_input-action"]["value"]
-    votes_allowed = state_values["votes-allowed"]["votes-allowed-action"]["selected_option"]["text"]["text"]
-    visibility = state_values["visibility"]["visibility-action"]["selected_options"]
-    submitter = body["user"]["id"]
-
-    in_Channel = get_Channels(client, channel)
-    logger.info(in_Channel)
-    if not in_Channel:
-        logger.info("i'm about to error ack!")
-        ack(
-            response_action="errors",
-            errors={
-                "channel": "The Polling app is not a part of this private channel so it can't send the poll. Please add it."
-            }
-
-        )
-    else:
-        logger.info("normal ack")
-        ack()
-
-    # options = []
-    # for key, value in state_values.items():
-    #     if "option" in key:
-    #         options.append(value)
-    # craft message
-    blocks = []
+def build_Poll(question, votes_Allowed, visibility, state_values, submitter):
+    """Take poll input and create message in blocks format for slack channel"""
     title_block=[
         {
             "type": "section",
@@ -306,7 +266,7 @@ def handle_view_events(ack, body, logger, client):
 			"elements": [
 				{
 					"type": "plain_text",
-					"text": votes_allowed,
+					"text": votes_Allowed,
 					"emoji": True
 				}
 			]
@@ -314,6 +274,7 @@ def handle_view_events(ack, body, logger, client):
     ]
     index = 1
     text_Values = {}
+    blocks = []
     if visibility:
         blocks = blocks + anonymous_block + title_block + options_block
     else:
@@ -359,24 +320,70 @@ def handle_view_events(ack, body, logger, client):
     blocks = blocks + final_block
     blocks = json.dumps(blocks)
     logger.info(f"Final message blocks to be sent to channel: {blocks}")
-    db = mongoclient.Poll
+    return blocks, text_Values
+
+def send_Message(client, channel, ack, blocks):
+    """Send formatted message to desired channel"""
+    # check if bot can post to channel
+    in_Channel = get_Channels(client, channel)
+    # if not in channel send error ack
+    if not in_Channel:
+        ack(
+            response_action="errors",
+            errors={
+                "channel": "The Polling app is not a part of this private channel so it can't send the poll. Please add it."
+            }
+
+        )
+    # if in channel send normal ack
+    else:
+        ack()   
+    # Post message
     try:
         result = client.chat_postMessage(
             channel=channel, 
             blocks=blocks
         )
         time = result["message"]["ts"]
-        time = result["message"]["ts"]
-        db[time].insert_one(text_Values)
-        db[time].insert_one({"anonymous": visibility})
-        db[time].insert_one({"votes_allowed": votes_allowed})
+
         logger.info(f"Try result = {result}")
-        return time
+        return True, time
     except SlackApiError as e:
         logger.info(e)
         logger.info("Bot not in channel")
+        return False, e
+
+def update_DB(time, text_Values, visibility, votes_Allowed):
+    """Store original poll data in DB"""
+    dbpass = os.environ.get("DB_PASS")
+    mongoclient = MongoClient(f"mongodb+srv://unfo33:{dbpass}@cluster0.deaag.mongodb.net/?retryWrites=true&w=majority")
+    db = mongoclient.Poll
+    db[time].insert_one(text_Values)
+    db[time].insert_one({"anonymous": visibility})
+    db[time].insert_one({"votes_allowed": votes_Allowed})
+
+# Accept the submitted poll
+@app.view("poll_view")
+def handle_Poll_Submission(ack, body, logger, client):
+    """Accept submitted poll and kick off poll building"""
+    # collect values
+    state_values = body["view"]["state"]["values"]
+    channel = state_values["channel"]["channel"]["selected_conversation"]
+    question = state_values["question"]["plain_text_input-action"]["value"]
+    votes_Allowed = state_values["votes-allowed"]["votes-allowed-action"]["selected_option"]["text"]["text"]
+    visibility = state_values["visibility"]["visibility-action"]["selected_options"]
+    submitter = body["user"]["id"]
+    # build Poll
+    blocks, text_Values = build_Poll(question, votes_Allowed, visibility, state_values, submitter)
+    # send message
+    status, time = send_Message(client, channel, ack, blocks)
+    if status:
+        update_DB(time, text_Values, visibility, votes_Allowed)
+    else:
+        logger.exception(f"Failed to send message to channel. Error message {e}")
 
 def store_Vote(body, client):
+    """Update database with new vote"""
     logger.info("storing vote")
     db=client.Poll
     ts = body["message"]["ts"]
@@ -397,10 +404,13 @@ def store_Vote(body, client):
         else:
             db[ts].delete_one({"id": voter})
             db[ts].insert_one({"id": voter, "vote": vote})
+    # if they didn't vote add their vote
     else:
         db[ts].insert_one({"id": voter, "vote": vote})
 
+# when databse is migrated hopefully we can split this up a bit
 def retrieve_Vote(client, body):
+    """Retrieve votes from DB and build message"""
     logger.info("retrieving vote")
     db=client.Poll
     blocks = body["message"]["blocks"]
@@ -440,6 +450,10 @@ def retrieve_Vote(client, body):
                     block["text"].update({"text": f"{text}\n`{count}`"})
             else:
                 block["text"].update({"text": f"{text}\n`{count}`"})
+    return channel, ts, blocks
+
+def update_Poll(channel, ts, blocks):
+    """Send update poll blocks back to channel"""
     try:
         app.client.chat_update(channel=channel, ts=ts, blocks=blocks)
         logger.info("action item updated")
@@ -449,14 +463,16 @@ def retrieve_Vote(client, body):
 
 # receive a vote and do the needful
 @app.action("vote")
-def handle_some_action(ack, body, logger):
+def handle_Vote(ack, body, logger):
+    """initial vote handler, kicks off processing"""
     ack()
     body_json = json.dumps(body)
     logger.info(body_json)
     dbpass = os.environ.get("DB_PASS")
     client = MongoClient(f"mongodb+srv://unfo33:{dbpass}@cluster0.deaag.mongodb.net/?retryWrites=true&w=majority")
     store_Vote(body, client)
-    retrieve_Vote(client, body)
+    channel, ts, blocks = retrieve_Vote(client, body)
+    update_Poll(channel, ts, blocks)
 
 flask_app = Flask(__name__)
 handler = SlackRequestHandler(app)
