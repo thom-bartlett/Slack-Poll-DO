@@ -361,7 +361,6 @@ def update_DB(time, text_Values, visibility, votes_Allowed):
         'mongodb+srv://slack-poll-f9932d0b.mongo.ondigitalocean.com',
         username='doadmin',
         password=dbpass,
-        authSource='Poll',
         authMechanism='SCRAM-SHA-256')
     db = mongoClient.Poll
     db[time].insert_one(text_Values)
