@@ -172,7 +172,7 @@ creation_View = {
 def get_CreationView():
     p = Path(__file__).with_name('creationView.json')
     with p.open('r') as f:
-        view = json.loads(f)
+        view = json.loads(f.read())
     return view
 
 # Slack Shortcut activated - send modal view
