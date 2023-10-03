@@ -474,7 +474,14 @@ def handle_Vote(ack, body, logger):
     body_json = json.dumps(body)
     logger.info(body_json)
     dbpass = os.environ.get("DB_PASS")
-    client = MongoClient(f"mongodb+srv://unfo33:{dbpass}@cluster0.deaag.mongodb.net/?retryWrites=true&w=majority")
+    #mongoclient = MongoClient(f"mongodb+srv://doadmin:{dbpass}slack-poll-f9932d0b.mongo.ondigitalocean.com")
+    mongoClient = MongoClient(
+        'mongodb+srv://slack-poll-f9932d0b.mongo.ondigitalocean.com',
+        username='doadmin',
+        password=dbpass,
+        tls=True,
+        authMechanism='SCRAM-SHA-256')
+    client = mongoClient.admin
     store_Vote(body, client)
     channel, ts, blocks = retrieve_Vote(client, body)
     update_Poll(channel, ts, blocks)
