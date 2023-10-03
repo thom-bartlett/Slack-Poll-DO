@@ -345,7 +345,6 @@ def send_Message(client, channel, ack, blocks):
             blocks=blocks
         )
         time = result["message"]["ts"]
-
         logger.info(f"Try result = {result}")
         return True, time
     except SlackApiError as e:
@@ -361,8 +360,9 @@ def update_DB(time, text_Values, visibility, votes_Allowed):
         'mongodb+srv://slack-poll-f9932d0b.mongo.ondigitalocean.com',
         username='doadmin',
         password=dbpass,
+        tls=True,
         authMechanism='SCRAM-SHA-256')
-    db = mongoClient.Poll
+    db = mongoClient.admin
     db[time].insert_one(text_Values)
     db[time].insert_one({"anonymous": visibility})
     db[time].insert_one({"votes_allowed": votes_Allowed})
