@@ -240,8 +240,10 @@ def get_Channels(client, current_channel):
         client.conversations_info(
             channel=current_channel
         )
+        logger.info("In Channel")
         return True
     except:
+        logger.info("Not in Channel")
         return False
 
 def build_Poll(question, votes_Allowed, visibility, state_values, submitter):
@@ -341,24 +343,23 @@ def send_Message(client, channel, ack, blocks):
             errors={
                 "channel": "The Polling app is not a part of this private channel so it can't send the poll. Please add it."
             }
-
         )
     # if in channel send normal ack
     else:
         ack()   
-    # Post message
-    try:
-        result = client.chat_postMessage(
-            channel=channel, 
-            blocks=blocks
-        )
-        time = result["message"]["ts"]
-        logger.info(f"Try result = {result}")
-        return True, time
-    except SlackApiError as e:
-        logger.info(e)
-        logger.info("Bot not in channel")
-        return False, e
+        # Post message
+        try:
+            result = client.chat_postMessage(
+                channel=channel, 
+                blocks=blocks
+            )
+            time = result["message"]["ts"]
+            logger.info(f"Try result = {result}")
+            return True, time
+        except SlackApiError as e:
+            logger.info(e)
+            logger.info("Bot not in channel")
+            return False, e
 
 # Accept the submitted poll
 @app.view("poll_view")
