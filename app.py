@@ -344,6 +344,7 @@ def send_Message(client, channel, ack, blocks):
                 "channel": "The Polling app is not a part of this private channel so it can't send the poll. Please add it."
             }
         )
+        return False, "Not in Channel"
     # if in channel send normal ack
     else:
         ack()   
