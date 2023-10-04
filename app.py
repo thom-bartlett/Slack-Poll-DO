@@ -382,7 +382,7 @@ def handle_Poll_Submission(ack, body, logger, client):
         db[time].insert_one({"anonymous": visibility})
         db[time].insert_one({"votes_allowed": votes_Allowed})
     else:
-        logger.exception(f"Failed to send message to channel. Error message {e}")
+        logger.exception(f"Failed to send message to channel. Error message {time}")
 
 def store_Vote(body):
     """Update database with new vote"""
