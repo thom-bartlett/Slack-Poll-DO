@@ -18,6 +18,14 @@ app = App(process_before_response=True)
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
+dbpass = os.environ.get("DB_PASS")
+mongoClient = MongoClient(
+    'mongodb+srv://slack-poll-f9932d0b.mongo.ondigitalocean.com',
+    username='dotest',
+    password=dbpass,
+    tls=True)
+db = mongoClient.admin.Poll
+
 # initial view - should be converted to JSON
 creation_View = {
 	"callback_id": "poll_view",
@@ -352,21 +360,6 @@ def send_Message(client, channel, ack, blocks):
         logger.info("Bot not in channel")
         return False, e
 
-def update_DB(time, text_Values, visibility, votes_Allowed):
-    """Store original poll data in DB"""
-    dbpass = os.environ.get("DB_PASS")
-    #mongoclient = MongoClient(f"mongodb+srv://doadmin:{dbpass}slack-poll-f9932d0b.mongo.ondigitalocean.com")
-    mongoClient = MongoClient(
-        'mongodb+srv://slack-poll-f9932d0b.mongo.ondigitalocean.com',
-        username='doadmin',
-        password=dbpass,
-        tls=True,
-        authMechanism='SCRAM-SHA-256')
-    db = mongoClient.admin
-    db[time].insert_one(text_Values)
-    db[time].insert_one({"anonymous": visibility})
-    db[time].insert_one({"votes_allowed": votes_Allowed})
-
 # Accept the submitted poll
 @app.view("poll_view")
 def handle_Poll_Submission(ack, body, logger, client):
@@ -383,41 +376,41 @@ def handle_Poll_Submission(ack, body, logger, client):
     # send message
     status, time = send_Message(client, channel, ack, blocks)
     if status:
-        update_DB(time, text_Values, visibility, votes_Allowed)
+        db[time].insert_one(text_Values)
+        db[time].insert_one({"anonymous": visibility})
+        db[time].insert_one({"votes_allowed": votes_Allowed})
     else:
         logger.exception(f"Failed to send message to channel. Error message {e}")
 
-def store_Vote(body, client):
+def store_Vote(body):
     """Update database with new vote"""
     logger.info("storing vote")
-    db=client.Poll
-    ts = body["message"]["ts"]
+    time = body["message"]["ts"]
     voter = body["user"]["id"]
     vote = body["actions"][0]["value"]
-    document = db[ts].find_one({"id": voter})
-    votes_allowed = db[ts].find_one({"votes_allowed": "Select multiple options"})
+    document = db[time].find_one({"id": voter})
+    votes_allowed = db[time].find_one({"votes_allowed": "Select multiple options"})
     # Check if user previously voted
     if document:
         # Check more specifically if they voted for the same thing
-        specific_document = db[ts].find_one({"id": voter, "vote": vote})
+        specific_document = db[time].find_one({"id": voter, "vote": vote})
         # If they are voting for the same thing as previously just delete
         if specific_document:
-            db[ts].delete_one({"id": voter, "vote": vote})
+            db[time].delete_one({"id": voter, "vote": vote})
         elif votes_allowed:
-            db[ts].insert_one({"id": voter, "vote": vote})
+            db[time].insert_one({"id": voter, "vote": vote})
         # if they are voting for something different delete and add
         else:
-            db[ts].delete_one({"id": voter})
-            db[ts].insert_one({"id": voter, "vote": vote})
+            db[time].delete_one({"id": voter})
+            db[time].insert_one({"id": voter, "vote": vote})
     # if they didn't vote add their vote
     else:
-        db[ts].insert_one({"id": voter, "vote": vote})
+        db[time].insert_one({"id": voter, "vote": vote})
 
 # when databse is migrated hopefully we can split this up a bit
-def retrieve_Vote(client, body):
+def retrieve_Vote(body):
     """Retrieve votes from DB and build message"""
     logger.info("retrieving vote")
-    db=client.Poll
     blocks = body["message"]["blocks"]
     ts = body["message"]["ts"]
     document = db[ts].find({})
@@ -473,17 +466,8 @@ def handle_Vote(ack, body, logger):
     ack()
     body_json = json.dumps(body)
     logger.info(body_json)
-    dbpass = os.environ.get("DB_PASS")
-    #mongoclient = MongoClient(f"mongodb+srv://doadmin:{dbpass}slack-poll-f9932d0b.mongo.ondigitalocean.com")
-    mongoClient = MongoClient(
-        'mongodb+srv://slack-poll-f9932d0b.mongo.ondigitalocean.com',
-        username='doadmin',
-        password=dbpass,
-        tls=True,
-        authMechanism='SCRAM-SHA-256')
-    client = mongoClient.admin
-    store_Vote(body, client)
-    channel, ts, blocks = retrieve_Vote(client, body)
+    store_Vote(body)
+    channel, ts, blocks = retrieve_Vote(body)
     update_Poll(channel, ts, blocks)
 
 flask_app = Flask(__name__)
