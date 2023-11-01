@@ -81,6 +81,20 @@ def update_modal(ack, body, client):
         view = new_View_json
     )
 
+@app.action("save")
+def savePoll(ack, body, client):
+    ack()
+    # logging
+    body_json = json.dumps(body)
+    logger.info(body_json)
+
+@app.action("view-saved")
+def viewSaved(ack, body, client):
+    ack()
+    # logging
+    body_json = json.dumps(body)
+    logger.info(body_json)
+
 def get_Channels(client, current_channel):
     """check if bot has permission to post in a channel"""
     try:
