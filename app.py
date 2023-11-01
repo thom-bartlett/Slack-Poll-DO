@@ -1,5 +1,4 @@
 from flask import Flask, request
-from flask import render_template
 from slack_bolt import App
 from slack_bolt.adapter.flask import SlackRequestHandler
 import os
@@ -8,7 +7,6 @@ import logging
 from num2words import num2words
 from pymongo import MongoClient
 from slack_sdk.errors import SlackApiError
-import copy
 from pathlib import Path
 
 logging.basicConfig(level=logging.DEBUG)
@@ -25,157 +23,6 @@ mongoClient = MongoClient(
     password=dbpass,
     tls=True)
 db = mongoClient.admin.Poll
-
-# initial view - should be converted to JSON
-creation_View = {
-	"callback_id": "poll_view",
-	"type": "modal",
-	"title": {
-		"type": "plain_text",
-		"text": "VentureWell App",
-		"emoji": True
-	},
-	"submit": {
-		"type": "plain_text",
-		"text": "Submit",
-		"emoji": True
-	},
-	"close": {
-		"type": "plain_text",
-		"text": "Cancel",
-		"emoji": True
-	},
-	"blocks": [
-		{
-			"block_id": "channel",
-			"type": "input",
-			"optional": True,
-			"label": {
-				"type": "plain_text",
-				"text": "Select a channel to post the survey in:"
-			},
-			"element": {
-				"action_id": "channel",
-				"type": "conversations_select",
-				"response_url_enabled": True,
-				"default_to_current_conversation": True
-			}
-		},
-		{
-			"block_id": "question",
-			"type": "input",
-			"element": {
-				"type": "plain_text_input",
-				"action_id": "plain_text_input-action"
-			},
-			"label": {
-				"type": "plain_text",
-				"text": "Question or Topic:",
-				"emoji": True
-			}
-		},
-		{
-			"block_id": "votes-allowed",
-			"type": "input",
-			"element": {
-				"type": "static_select",
-				"placeholder": {
-					"type": "plain_text",
-					"text": "Select an item",
-					"emoji": True
-				},
-				"options": [
-					{
-						"text": {
-							"type": "plain_text",
-							"text": "Select multiple options",
-							"emoji": True
-						},
-						"value": "one-vote"
-					},
-					{
-						"text": {
-							"type": "plain_text",
-							"text": "Select one option",
-							"emoji": True
-						},
-						"value": "multiple-votes"
-					}
-				],
-				"action_id": "votes-allowed-action"
-			},
-			"label": {
-				"type": "plain_text",
-				"text": "How do you want people to respond?",
-				"emoji": True
-			}
-		},
-		{
-			"block_id": "option-1",
-			"type": "input",
-			"element": {
-				"type": "plain_text_input",
-				"action_id": "plain_text_input-action"
-			},
-			"label": {
-				"type": "plain_text",
-				"text": "Option 1",
-				"emoji": True
-			}
-		},
-		{
-			"block_id": "option-2",
-			"type": "input",
-			"optional": True,
-			"element": {
-				"type": "plain_text_input",
-				"action_id": "plain_text_input-action"
-			},
-			"label": {
-				"type": "plain_text",
-				"text": "Option 2",
-				"emoji": True
-			}
-		},
-		{
-			"block_id": "add-option",
-			"type": "actions",
-			"elements": [
-				{
-					"type": "button",
-					"text": {
-						"type": "plain_text",
-						"text": "Add another option",
-						"emoji": True
-					},
-					"value": "add-option-button",
-					"action_id": "add-option-action"
-				}
-			]
-		},
-		{
-			"block_id": "visibility",
-			"type": "section",
-			"text": {
-				"type": "mrkdwn",
-				"text": "*Settings*"
-			},
-			"accessory": {
-				"type": "checkboxes",
-				"options": [
-					{
-						"text": {
-							"type": "mrkdwn",
-							"text": "Make responses anonymous"
-						},
-						"value": "visibility-value"
-					}
-				],
-				"action_id": "visibility-action"
-			}
-		}
-	]
-}
 
 def get_CreationView():
     p = Path(__file__).with_name('creationView.json')

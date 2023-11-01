@@ -125,6 +125,35 @@
 			]
 		},
 		{
+			"type": "divider"
+		},
+		{
+			"block_id": "save",
+			"type": "actions",
+			"elements": [
+				{
+					"type": "button",
+					"text": {
+						"type": "plain_text",
+						"text": "Save",
+						"emoji": true
+					},
+					"value": "click_me_123",
+					"action_id": "save"
+				},
+				{
+					"type": "button",
+					"text": {
+						"type": "plain_text",
+						"text": "View Saved",
+						"emoji": true
+					},
+					"value": "click_me_123",
+					"action_id": "view-saved"
+				}
+			]
+		},
+		{
 			"block_id": "visibility",
 			"type": "section",
 			"text": {
@@ -140,9 +169,16 @@
 							"text": "Make responses anonymous"
 						},
 						"value": "visibility-value"
+					},
+					{
+						"text": {
+							"type": "mrkdwn",
+							"text": "Shared Poll (if saved)"
+						},
+						"value": "share-saved"
 					}
 				],
-				"action_id": "visibility-action"
+				"action_id": "shared-saved"
 			}
 		}
 	]
