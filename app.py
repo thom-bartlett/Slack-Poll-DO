@@ -23,6 +23,7 @@ mongoClient = MongoClient(
 db = mongoClient.admin.Poll
 
 def get_CreationView():
+    print ("showed creation view")
     p = Path(__file__).with_name('creationView.json')
     with p.open('r') as f:
         view = json.loads(f.read())
@@ -336,4 +337,5 @@ handler = SlackRequestHandler(app)
 
 @flask_app.route("/slack/events", methods=["POST"])
 def slack_events():
+    print("Something happened!")
     return handler.handle(request)
