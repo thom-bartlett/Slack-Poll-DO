@@ -12,7 +12,7 @@ from pathlib import Path
 app = App(process_before_response=True)
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logging.setLevel(logging.INFO)
+logger.setLevel(logging.INFO)
 
 dbpass = os.environ.get("DB_PASS")
 mongoClient = MongoClient(
