@@ -9,12 +9,12 @@ from pymongo import MongoClient
 from slack_sdk.errors import SlackApiError
 from pathlib import Path
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 app = App(process_before_response=True)
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 dbpass = os.environ.get("DB_PASS")
 mongoClient = MongoClient(
