@@ -23,7 +23,6 @@ mongoClient = MongoClient(
 db = mongoClient.admin.Poll
 
 def get_CreationView():
-    print ("showed creation view")
     p = Path(__file__).with_name('creationView.json')
     with p.open('r') as f:
         view = json.loads(f.read())
@@ -228,6 +227,7 @@ def handle_Poll_Submission(ack, body, logger, client):
     """Accept submitted poll and kick off poll building"""
     # collect values
     state_values = body["view"]["state"]["values"]
+    logger.info("state_values")
     channel = state_values["channel"]["channel"]["selected_conversation"]
     question = state_values["question"]["plain_text_input-action"]["value"]
     votes_Allowed = state_values["votes-allowed"]["votes-allowed-action"]["selected_option"]["text"]["text"]
@@ -337,5 +337,4 @@ handler = SlackRequestHandler(app)
 
 @flask_app.route("/slack/events", methods=["POST"])
 def slack_events():
-    print("Something happened!")
     return handler.handle(request)
