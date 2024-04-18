@@ -233,7 +233,7 @@ def handle_Poll_Submission(ack, body, logger, client):
     channel = state_values["channel"]["channel"]["selected_conversation"]
     question = state_values["question"]["plain_text_input-action"]["value"]
     votes_Allowed = state_values["votes-allowed"]["votes-allowed-action"]["selected_option"]["text"]["text"]
-    visibility = state_values["visibility"]["visibility-action"]["selected_options"]
+    visibility = state_values["visibility"]["settings"]["selected_options"]
     submitter = body["user"]["id"]
     # build Poll
     blocks, text_Values = build_Poll(question, votes_Allowed, visibility, state_values, submitter)
