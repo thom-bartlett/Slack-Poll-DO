@@ -79,11 +79,12 @@ def update_modal(ack, body, client):
         view = new_View_json
     )
 
-@app.action("save")
-def savePoll(ack, body, client):
+@app.action("edit")
+def savePoll(ack, body, logger):
     ack()
     # logging
     body_json = json.dumps(body)
+    print (body_json)
     logger.info(body_json)
 
 @app.action("view-saved")
