@@ -228,6 +228,8 @@ def handle_Poll_Submission(ack, body, logger, client):
     # collect values
     state_values = body["view"]["state"]["values"]
     logger.info(state_values)
+    print ("test")
+    print (state_values)
     channel = state_values["channel"]["channel"]["selected_conversation"]
     question = state_values["question"]["plain_text_input-action"]["value"]
     votes_Allowed = state_values["votes-allowed"]["votes-allowed-action"]["selected_option"]["text"]["text"]
