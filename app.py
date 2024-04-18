@@ -107,13 +107,26 @@ def get_Channels(client, current_channel):
 
 def build_Poll(question, votes_Allowed, visibility, state_values, submitter):
     """Take poll input and create message in blocks format for slack channel"""
-    title_block=[
+    title_block = [
         {
             "type": "section",
             "block_id": "question",
             "text": {
                 "type": "mrkdwn",
                 "text": f"*{question}*",
+            },
+            "accessory": {
+                "type": "overflow",
+                "options": [
+                    {
+                        "text": {
+                            "type": "plain_text",
+                            "text": "Edit"
+                        },
+                        "value": "edit"
+                    }
+                ],
+                "action_id": "edit"
             }
         }
     ]
