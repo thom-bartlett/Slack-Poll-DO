@@ -84,6 +84,11 @@ def savePoll(ack, body, logger):
     ack()
     # logging
     body_json = json.dumps(body)
+    # get the needed values from the response
+    # read in creationview.json
+    # update creation view with initial_value values
+    #display model 
+
     print (body_json)
     logger.info(body_json)
 
@@ -225,7 +230,8 @@ def send_Message(client, channel, ack, blocks):
         try:
             result = client.chat_postMessage(
                 channel=channel, 
-                blocks=blocks
+                blocks=blocks,
+                username="tbartlett"
             )
             time = result["message"]["ts"]
             logger.info(f"Try result = {result}")
