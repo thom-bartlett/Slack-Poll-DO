@@ -80,14 +80,27 @@ def update_modal(ack, body, client):
     )
 
 @app.action("edit")
-def savePoll(ack, body, logger):
+def savePoll(ack, body, logger, client):
     ack()
     # logging
     body_json = json.dumps(body)
+    editor = body["user"]["username"]
+    submitter = body["message"]["username"]
+    if editor != submitter:
+        print ("not authorized")
+        # add modal
+    else:
+        blocks = body["message"]["blocks"]
+        creation_View = get_CreationView()
+        creation_View["blocks"] = blocks
+        client.views_open(
+            trigger_id=body["trigger_id"],
+            view=creation_View
+        )
     # get the needed values from the response
     # read in creationview.json
     # update creation view with initial_value values
-    #display model 
+    # display modal 
 
     print (body_json)
     logger.info(body_json)
@@ -230,8 +243,7 @@ def send_Message(client, channel, ack, blocks):
         try:
             result = client.chat_postMessage(
                 channel=channel, 
-                blocks=blocks,
-                username="tbartlett"
+                blocks=blocks
             )
             time = result["message"]["ts"]
             logger.info(f"Try result = {result}")
