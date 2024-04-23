@@ -95,7 +95,7 @@ def savePoll(ack, body, logger, client):
         print (questionText)
         questionList = []
         for i in blocks:
-            if i["block_ID"][0:6] == "option-":
+            if i["block_id"][0:6] == "option-":
                 questionList.append(i["text"]["text"])
         print (questionList)
         creation_View = get_CreationView()
