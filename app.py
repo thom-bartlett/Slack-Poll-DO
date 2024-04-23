@@ -84,6 +84,7 @@ def savePoll(ack, body, logger, client):
     ack()
     # logging
     body_json = json.dumps(body)
+    print (body_json)
     editor = body["user"]["username"]
     submitter = body["message"]["username"]
     if editor != submitter:
