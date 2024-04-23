@@ -91,7 +91,15 @@ def savePoll(ack, body, logger, client):
         # add modal
     else:
         blocks = body["message"]["blocks"]
+        questionText = blocks[0]["text"]["text"]
+        print (questionText)
+        questionList = []
+        for i in blocks:
+            if i["block_ID"][0:6] == "option-":
+                questionList.append(i["text"]["text"])
+        print (questionList)
         creation_View = get_CreationView()
+        creation_View["blocks"][2]["element"]["initial_value"] = questionText
         client.views_open(
             trigger_id=body["trigger_id"],
             view=creation_View
