@@ -99,7 +99,7 @@ def savePoll(ack, body, logger, client):
                 questionList.append(i["text"]["text"])
         print (questionList)
         creation_View = get_CreationView()
-        creation_View["blocks"][2]["element"]["initial_value"] = questionText
+        creation_View["blocks"][1]["element"]["initial_value"] = questionText
         client.views_open(
             trigger_id=body["trigger_id"],
             view=creation_View
