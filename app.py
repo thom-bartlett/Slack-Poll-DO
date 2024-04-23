@@ -103,7 +103,7 @@ def savePoll(ack, body, logger, client):
         pollChannel = body["channel"]["id"]
         pollTS = body["message"]["ts"]
         print(pollChannel, pollTS, creation_View)
-        update_Poll(pollChannel, pollTS, creation_View)
+        update_Poll(pollChannel, pollTS, creation_View["blocks"])
         # client.views_open(
         #     trigger_id=body["trigger_id"],
         #     view=creation_View
