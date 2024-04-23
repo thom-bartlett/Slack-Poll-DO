@@ -104,11 +104,11 @@ def savePoll(ack, body, logger, client):
     pollChannel = body["channel"]["id"]
     pollTS = body["message"]["ts"]
     print(pollChannel, pollTS, creation_View)
-    update_Poll(pollChannel, pollTS, creation_View["blocks"])
-    # client.views_open(
-    #     trigger_id=body["trigger_id"],
-    #     view=creation_View
-    # )
+    #update_Poll(pollChannel, pollTS, creation_View["blocks"])
+    client.views_open(
+        trigger_id=body["trigger_id"],
+        view=creation_View
+    )
     # get the needed values from the response
     # read in creationview.json
     # update creation view with initial_value values
@@ -272,7 +272,7 @@ def handle_Poll_Submission(ack, body, logger, client):
     # collect values
     state_values = body["view"]["state"]["values"]
     logger.info(state_values)
-    print ("test")
+    print(json.dumps(body))
     print (state_values)
     channel = state_values["channel"]["channel"]["selected_conversation"]
     question = state_values["question"]["plain_text_input-action"]["value"]
