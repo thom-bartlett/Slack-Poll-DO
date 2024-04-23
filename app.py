@@ -85,30 +85,30 @@ def savePoll(ack, body, logger, client):
     # logging
     body_json = json.dumps(body)
     print (body_json)
-    editor = body["user"]["username"]
-    submitter = body["message"]["username"]
-    if editor != submitter:
-        print ("not authorized")
-        # add modal
-    else:
-        blocks = body["message"]["blocks"]
-        questionText = blocks[0]["text"]["text"]
-        print (questionText)
-        questionList = []
-        for i in blocks:
-            if i["block_id"][0:6] == "option-":
-                questionList.append(i["text"]["text"])
-        print (questionList)
-        creation_View = get_CreationView()
-        creation_View["blocks"][1]["element"]["initial_value"] = questionText
-        pollChannel = body["channel"]["id"]
-        pollTS = body["message"]["ts"]
-        print(pollChannel, pollTS, creation_View)
-        update_Poll(pollChannel, pollTS, creation_View["blocks"])
-        # client.views_open(
-        #     trigger_id=body["trigger_id"],
-        #     view=creation_View
-        # )
+    editor = body["user"]["id"]
+    # submitter = body["message"]["username"]
+    # if editor != submitter:
+    #     print ("not authorized")
+    #     # add modal
+    # else:
+    blocks = body["message"]["blocks"]
+    questionText = blocks[0]["text"]["text"]
+    print (questionText)
+    questionList = []
+    for i in blocks:
+        if i["block_id"][0:6] == "option-":
+            questionList.append(i["text"]["text"])
+    print (questionList)
+    creation_View = get_CreationView()
+    creation_View["blocks"][1]["element"]["initial_value"] = questionText
+    pollChannel = body["channel"]["id"]
+    pollTS = body["message"]["ts"]
+    print(pollChannel, pollTS, creation_View)
+    update_Poll(pollChannel, pollTS, creation_View["blocks"])
+    # client.views_open(
+    #     trigger_id=body["trigger_id"],
+    #     view=creation_View
+    # )
     # get the needed values from the response
     # read in creationview.json
     # update creation view with initial_value values
