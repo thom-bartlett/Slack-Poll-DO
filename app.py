@@ -100,10 +100,13 @@ def savePoll(ack, body, logger, client):
         print (questionList)
         creation_View = get_CreationView()
         creation_View["blocks"][1]["element"]["initial_value"] = questionText
-        client.views_open(
-            trigger_id=body["trigger_id"],
-            view=creation_View
-        )
+        pollChannel = body["channel"]["id"]
+        pollTS = body["message"]["ts"]
+        update_Poll(pollChannel, pollTS, creation_View)
+        # client.views_open(
+        #     trigger_id=body["trigger_id"],
+        #     view=creation_View
+        # )
     # get the needed values from the response
     # read in creationview.json
     # update creation view with initial_value values
