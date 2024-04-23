@@ -92,7 +92,6 @@ def savePoll(ack, body, logger, client):
     else:
         blocks = body["message"]["blocks"]
         creation_View = get_CreationView()
-        creation_View["blocks"] = blocks
         client.views_open(
             trigger_id=body["trigger_id"],
             view=creation_View
