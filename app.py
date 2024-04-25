@@ -86,6 +86,7 @@ def savePoll(ack, body, logger, client):
     body_json = json.dumps(body)
     print ("Edit payload:", body_json)
     editor = body["user"]["id"]
+    timeStamp = body["container"]["message_ts"]
     # submitter = body["message"]["username"]
     # if editor != submitter:
     #     print ("not authorized")
@@ -102,6 +103,7 @@ def savePoll(ack, body, logger, client):
     creation_View = get_CreationView()
     creation_View["blocks"][1]["element"]["initial_value"] = questionText
     creation_View["callback_id"] = "poll_update"
+    creation_View["private_metadata"] = timeStamp
     pollChannel = body["channel"]["id"]
     pollTS = body["message"]["ts"]
     #print(pollChannel, pollTS, creation_View)
