@@ -84,7 +84,7 @@ def savePoll(ack, body, logger, client):
     ack()
     # logging
     body_json = json.dumps(body)
-    #print (body_json)
+    print ("Edit payload:", body_json)
     editor = body["user"]["id"]
     # submitter = body["message"]["username"]
     # if editor != submitter:
@@ -269,7 +269,7 @@ def send_Message(client, channel, ack, blocks):
 @app.view("poll_update")
 def handle_Poll_Submission(ack, body, logger, client):
     ack()
-    print(json.dumps(body))
+    print("Poll view payload:",json.dumps(body))
 
 # Accept the submitted poll
 @app.view("poll_view")
