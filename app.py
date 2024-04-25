@@ -12,7 +12,7 @@ from pathlib import Path
 app = App(process_before_response=True)
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 dbpass = os.environ.get("DB_PASS")
 mongoClient = MongoClient(
@@ -84,7 +84,7 @@ def savePoll(ack, body, logger, client):
     ack()
     # logging
     body_json = json.dumps(body)
-    print (body_json)
+    #print (body_json)
     editor = body["user"]["id"]
     # submitter = body["message"]["username"]
     # if editor != submitter:
@@ -93,17 +93,17 @@ def savePoll(ack, body, logger, client):
     # else:
     blocks = body["message"]["blocks"]
     questionText = blocks[0]["text"]["text"]
-    print (questionText)
+    #print (questionText)
     questionList = []
     for i in blocks:
         if i["block_id"][0:6] == "option-":
             questionList.append(i["text"]["text"])
-    print (questionList)
+    #print (questionList)
     creation_View = get_CreationView()
     creation_View["blocks"][1]["element"]["initial_value"] = questionText
     pollChannel = body["channel"]["id"]
     pollTS = body["message"]["ts"]
-    print(pollChannel, pollTS, creation_View)
+    #print(pollChannel, pollTS, creation_View)
     #update_Poll(pollChannel, pollTS, creation_View["blocks"])
     client.views_open(
         trigger_id=body["trigger_id"],
@@ -114,7 +114,7 @@ def savePoll(ack, body, logger, client):
     # update creation view with initial_value values
     # display modal 
 
-    print (body_json)
+    #print (body_json)
     logger.info(body_json)
 
 @app.action("view-saved")
@@ -269,11 +269,13 @@ def send_Message(client, channel, ack, blocks):
 @app.view("poll_view")
 def handle_Poll_Submission(ack, body, logger, client):
     """Accept submitted poll and kick off poll building"""
+    # check if new poll or editing existing one
+
     # collect values
     state_values = body["view"]["state"]["values"]
     logger.info(state_values)
     print(json.dumps(body))
-    print (state_values)
+    #print (state_values)
     channel = state_values["channel"]["channel"]["selected_conversation"]
     question = state_values["question"]["plain_text_input-action"]["value"]
     votes_Allowed = state_values["votes-allowed"]["votes-allowed-action"]["selected_option"]["text"]["text"]
