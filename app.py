@@ -12,7 +12,7 @@ from pathlib import Path
 app = App(process_before_response=True)
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.WARNING)
 
 dbpass = os.environ.get("DB_PASS")
 mongoClient = MongoClient(
@@ -101,6 +101,7 @@ def savePoll(ack, body, logger, client):
     #print (questionList)
     creation_View = get_CreationView()
     creation_View["blocks"][1]["element"]["initial_value"] = questionText
+    creation_View["callback_id"] = "poll_update"
     pollChannel = body["channel"]["id"]
     pollTS = body["message"]["ts"]
     #print(pollChannel, pollTS, creation_View)
@@ -264,6 +265,11 @@ def send_Message(client, channel, ack, blocks):
             logger.info(e)
             logger.info("Bot not in channel")
             return False, e
+
+@app.view("poll_update")
+def handle_Poll_Submission(ack, body, logger, client):
+    ack()
+    print(json.dumps(body))
 
 # Accept the submitted poll
 @app.view("poll_view")
