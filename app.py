@@ -271,7 +271,11 @@ def send_Message(client, channel, ack, blocks):
 @app.view("poll_update")
 def handle_Poll_Submission(ack, body, logger, client):
     ack()
+    timeStamp = body["view"]["private_metadata"]
+    channel = body["response_urls"][0]["channel_id"]
     print("Poll view payload:",json.dumps(body))
+    update_Poll(channel, timeStamp,)
+
 
 # Accept the submitted poll
 @app.view("poll_view")
@@ -289,6 +293,10 @@ def handle_Poll_Submission(ack, body, logger, client):
     votes_Allowed = state_values["votes-allowed"]["votes-allowed-action"]["selected_option"]["text"]["text"]
     visibility = state_values["visibility"]["settings"]["selected_options"]
     submitter = body["user"]["id"]
+
+    if "private_metadata" in body["view"]:
+        timeStamp = body["view"]["private_metadata"]
+        
     # build Poll
     blocks, text_Values = build_Poll(question, votes_Allowed, visibility, state_values, submitter)
     # send message
